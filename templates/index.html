@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Performance Ratings</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Employee Performance Rating</h1>
+        <p>Upload Excel file to predict employee performance ratings.</p>
+
+        <form action="/predict" method="post" enctype="multipart/form-data" class="upload-form">
+            <input type="file" name="file" id="file" required>
+            <label for="file">Choose File</label>
+            <button type="submit">Predict Now</button>
+        </form>
+
+        <div class="footer">
+           
+        </div>
+    </div>
+</body>
+</html>
+

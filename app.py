@@ -7,7 +7,7 @@ from io import BytesIO
 from preprocess import preprocess_data
 
 app = Flask(__name__)
-model = load_model('dnn_employee_performance_model.h5')
+model = load_model('./model/dnn_employee_performance_model.h5')
 latest_result = None
 
 @app.route('/')

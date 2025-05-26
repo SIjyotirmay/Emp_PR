@@ -1,11 +1,14 @@
-from flask import Flask, render_template, request, redirect
-import pandas as pd
+
+from flask import Flask, render_template, request, send_file
 import numpy as np
-from tensorflow.keras.models import load_model
-import os
+import pandas as pd
+from tensorflow.keras.models import load_model  # type: ignore
+from io import BytesIO
+from preprocess import preprocess_data
 
 app = Flask(__name__)
 model = load_model('dnn_employee_performance_model.h5')
+latest_result = None
 
 @app.route('/')
 def home():
@@ -13,54 +16,49 @@ def home():
 
 @app.route('/predict', methods=['POST'])
 def predict():
+    global latest_result
+
     if 'file' not in request.files:
         return "No file uploaded."
 
     file = request.files['file']
 
     try:
-      
+        features, emp_numbers, data_imputed = preprocess_data(file)
 
-        filename = file.filename.lower()
-
-        if filename.endswith('.csv'):
-            df = pd.read_csv(file)
-        elif filename.endswith(('.xls', '.xlsx')):
-            df = pd.read_excel(file, engine='openpyxl')  # specify engine just in case
-        else:
-            return "Unsupported file format. Please upload .csv or .xlsx files."
-
-
-        # Drop the label and index columns if present
-        df = df.drop(columns=['Unnamed: 0', 'PerformanceRating'], errors='ignore')
-
-        # Select only the model input columns
-        expected_columns = [
-            'pca1', 'pca2', 'pca3', 'pca4', 'pca5',
-            'pca6', 'pca7', 'pca8', 'pca9', 'pca10',
-            'pca11', 'pca12', 'pca13', 'pca14', 'pca15',
-            'pca16', 'pca17', 'pca18', 'pca19', 'pca20',
-            'pca21', 'pca22', 'pca23', 'pca24', 'pca25'
-        ]
-
-        df = df[expected_columns]
-
-        # Run prediction
-        predictions = model.predict(df)
+        predictions = model.predict(features)
         predicted_labels = np.argmax(predictions, axis=1)
-        df['Predicted_Performance'] = predicted_labels
-        df['Predicted_Performance']=  df['Predicted_Performance']+2
-            
+        predicted_ratings = predicted_labels + 2
 
-        # Convert to HTML table
-        result_html = df.to_html(classes='table table-bordered', index=False)
+        output_df = pd.DataFrame({
+            'EmpNumber': emp_numbers,
+            'PredictedPerformanceRating': predicted_ratings
+        })
 
-        return f"<h2>Prediction Results:</h2>{result_html}<br><a href='/'>Back</a>"
+        latest_result = output_df
+
+        return """
+        <h3>Prediction completed!</h3>
+        <form action="/download" method="post">
+            <button type="submit" class="btn btn-success">Download Results as Excel</button>
+        </form>
+        <br><a href='/' class='btn btn-secondary'>Back</a>
+        """
 
     except Exception as e:
-        return f"Error processing file: {e}"
+        return f"<h4 style='color:red;'>Error processing file: {e}</h4><br><a href='/'>Back</a>"
 
-# Your routes and logic above...
+@app.route('/download', methods=['POST'])
+def download():
+    global latest_result
+
+    if latest_result is None:
+        return "No results available for download."
+
+    output = BytesIO()
+    latest_result.to_excel(output, index=False)
+    output.seek(0)
+    return send_file(output, download_name="predicted_performance.xlsx", as_attachment=True)
 
 if __name__ == '__main__':
     app.run(debug=True)

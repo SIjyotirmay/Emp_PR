@@ -1,4 +1,4 @@
-/* Basic Page Styles */
+
 body {
     font-family: 'Arial', sans-serif;
     background: linear-gradient(to right, #4facfe, #00f2fe);
@@ -10,7 +10,7 @@ body {
     align-items: center;
 }
 
-/* Container Styling */
+
 .container {
     background: #fff;
     width: 400px;
@@ -21,7 +21,7 @@ body {
     animation: fadeIn 1s;
 }
 
-/* Heading and Paragraph */
+
 h1 {
     margin-top: 0;
     font-size: 24px;
@@ -32,14 +32,14 @@ p {
     margin-bottom: 20px;
 }
 
-/* Upload Form */
+
 .upload-form {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-/* File Input Styling */
+
 input[type="file"] {
     display: none;
 }
@@ -56,7 +56,7 @@ label:hover {
     background-color: #00c6ff;
 }
 
-/* Submit Button */
+
 button {
     margin-top: 20px;
     background: linear-gradient(to right, #4facfe, #00f2fe);
@@ -72,14 +72,20 @@ button:hover {
     background: linear-gradient(to right, #43e97b, #38f9d7);
 }
 
-/* Footer Styling */
 .footer {
     margin-top: 20px;
     font-size: 12px;
     color: #777;
 }
 
-/* Animations */
+.message p {
+    background-color: #e0f7fa;
+    padding: 10px;
+    color: #00796b;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -88,5 +94,12 @@ button:hover {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        width: 90%;
+        padding: 20px;
     }
 }
